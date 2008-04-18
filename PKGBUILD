@@ -1,4 +1,3 @@
-# $Id: PKGBUILD,v 1.44 2008/02/05 18:31:20 paul Exp $
 # Maintainer: Paul Mattal <paul@archlinux.org>
 pkgname=postgresql
 pkgver=8.3.0
