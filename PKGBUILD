@@ -2,7 +2,7 @@
 
 pkgname=postgresql
 pkgver=8.3.4
-pkgrel=1
+pkgrel=2
 pkgdesc="A sophisticated object-relational DBMS"
 arch=(i686 x86_64)
 license=('BSD')
@@ -23,8 +23,11 @@ build() {
   patch -Np1 -i ../build.patch || return 1
 
   # configure
-  ./configure --prefix=/usr --mandir=/usr/share/man --with-docdir=/usr/share/doc --with-openssl --datadir=/usr/share/postgresql \
-  	|| return 1
+  ./configure --prefix=/usr --mandir=/usr/share/man \
+  --with-docdir=/usr/share/doc --with-openssl \
+  --with-pam \
+  --datadir=/usr/share/postgresql \
+  || return 1
   sed -i -e '/interfaces/d' src/Makefile || return 1
 
   # build
