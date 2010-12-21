@@ -3,7 +3,7 @@
 pkgbase=postgresql
 pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
 pkgver=9.0.2
-pkgrel=1
+pkgrel=1.1
 arch=('i686' 'x86_64')
 url="http://www.postgresql.org"
 license=('custom:PostgreSQL')
@@ -44,7 +44,7 @@ package_postgresql-libs() {
   cd "${srcdir}/${pkgbase}-${pkgver}"
 
   # install license
-  install -D -m644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -D -m644 COPYRIGHT "${pkgdir}/usr/share/licenses/postgresql-libs/LICENSE"
 
   # install libs
   for dir in src/interfaces src/bin/pg_config; do
@@ -80,7 +80,7 @@ package_postgresql-docs() {
   cd "${srcdir}/${pkgbase}-${pkgver}"
 
   # install license
-  install -D -m644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -D -m644 COPYRIGHT "${pkgdir}/usr/share/licenses/postgresql-docs/LICENSE"
 
   make -C doc/src/sgml DESTDIR="${pkgdir}" install-html
   chown -R root:root "${pkgdir}/usr/share/doc/postgresql/html/"
