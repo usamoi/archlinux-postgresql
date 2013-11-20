@@ -4,7 +4,7 @@ pkgbase=postgresql
 pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
 pkgver=9.3.1
 _majorver=${pkgver%.*}
-pkgrel=3
+pkgrel=4
 arch=('i686' 'x86_64')
 url="http://www.postgresql.org/"
 license=('custom:PostgreSQL')
@@ -94,7 +94,7 @@ package_postgresql-libs() {
 
 package_postgresql-docs() {
   pkgdesc="HTML documentation for PostgreSQL"
-  options=(docs)
+  options=('docs')
 
   cd "${srcdir}/postgresql-${pkgver}"
 
@@ -117,6 +117,7 @@ package_postgresql() {
               'perl: for PL/Perl support'
               'tcl: for PL/Tcl support'
               'postgresql-old-upgrade: upgrade from previous major version using pg_upgrade')
+  options=('staticlibs')
   install=postgresql.install
 
   cd "${srcdir}/postgresql-${pkgver}"
