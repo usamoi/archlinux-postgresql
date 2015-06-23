@@ -46,6 +46,7 @@ build() {
     --with-tcl \
     --with-pam \
     --with-system-tzdata=/usr/share/zoneinfo \
+    --with-uuid=e2fs \
     --enable-nls \
     --enable-thread-safety
 
