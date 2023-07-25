@@ -5,7 +5,7 @@ pkgbase=postgresql
 pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
 pkgver=15.3
 _majorver=${pkgver%.*}
-pkgrel=2
+pkgrel=3
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
@@ -103,6 +103,7 @@ _postgres_check() {
 }
 
 check() {
+  export LANG=C
   cd postgresql-${pkgver}
   _postgres_check check
   _postgres_check check-world
