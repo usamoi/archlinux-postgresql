@@ -5,13 +5,13 @@ pkgbase=postgresql
 pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
 pkgver=15.4
 _majorver=${pkgver%.*}
-pkgrel=1
+pkgrel=2
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
 license=('custom:PostgreSQL')
 makedepends=('krb5' 'libxml2' 'python' 'perl' 'tcl>=8.6.0' 'openssl>=1.0.0'
-             'pam' 'zlib' 'icu' 'systemd' 'libldap' 'llvm14' 'clang14' 'libxslt'
+             'pam' 'zlib' 'icu' 'systemd' 'libldap' 'llvm15' 'clang15' 'libxslt'
              'util-linux')
 source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
         postgresql-run-socket.patch
@@ -90,7 +90,7 @@ build() {
   # Fix static libs
   CFLAGS+=" -ffat-lto-objects"
 
-  LLVM_CONFIG=llvm-config-14 CLANG=/usr/lib/llvm14/bin/clang \
+  LLVM_CONFIG=llvm-config-15 CLANG=/usr/lib/llvm15/bin/clang \
   ./configure "${configure_options[@]}"
   make world
 }
@@ -170,7 +170,7 @@ package_postgresql() {
   pkgdesc='Sophisticated object-relational DBMS'
   backup=('etc/pam.d/postgresql' 'etc/logrotate.d/postgresql')
   depends=("postgresql-libs>=${pkgver}" 'krb5' 'libxml2' 'readline>=6.0'
-           'openssl>=1.0.0' 'pam' 'icu' 'systemd-libs' 'libldap' 'llvm14-libs'
+           'openssl>=1.0.0' 'pam' 'icu' 'systemd-libs' 'libldap' 'llvm15-libs'
            'libxslt' 'lz4' 'zstd')
   optdepends=('python: for PL/Python 3 support'
               'perl: for PL/Perl support'
