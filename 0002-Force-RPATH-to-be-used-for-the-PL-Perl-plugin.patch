@@ -8,12 +8,12 @@ Subject: [PATCH] Force RPATH to be used for the PL/Perl plugin
  1 file changed, 3 insertions(+)
 
 diff --git a/src/pl/plperl/GNUmakefile b/src/pl/plperl/GNUmakefile
-index a2e6410f5333..a8ce75ac1209 100644
+index 51f8890d15d9..00d05a5e86a8 100644
 --- a/src/pl/plperl/GNUmakefile
 +++ b/src/pl/plperl/GNUmakefile
-@@ -55,6 +55,9 @@ endif # win32
- 
- SHLIB_LINK = $(perl_embed_ldflags)
+@@ -60,6 +60,9 @@ ifeq ($(PORTNAME), cygwin)
+ SHLIB_LINK += -Wl,--export-all-symbols
+ endif
  
 +# Force rpath to be used even though we disable it everywhere else
 +SHLIB_LINK += $(rpath)

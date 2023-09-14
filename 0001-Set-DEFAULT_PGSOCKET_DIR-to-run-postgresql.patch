@@ -8,10 +8,10 @@ Subject: [PATCH] Set DEFAULT_PGSOCKET_DIR to /run/postgresql
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/include/pg_config_manual.h b/src/include/pg_config_manual.h
-index 8d2e3e3a57d0..15a397537e6b 100644
+index a1a93ad706e8..77d1c0851096 100644
 --- a/src/include/pg_config_manual.h
 +++ b/src/include/pg_config_manual.h
-@@ -224,7 +224,7 @@
+@@ -206,7 +206,7 @@
   * support them yet.
   */
  #ifndef WIN32
