@@ -14,8 +14,8 @@ makedepends=('krb5' 'libxml2' 'python' 'perl' 'tcl>=8.6.0' 'openssl>=1.0.0'
              'pam' 'zlib' 'icu' 'systemd' 'libldap' 'llvm15' 'clang15' 'libxslt'
              'util-linux')
 source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
-        postgresql-run-socket.patch
-        postgresql-perl-rpath.patch
+        0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
+        0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
         postgresql.pam
         postgresql.logrotate
         postgresql.service
@@ -23,8 +23,8 @@ source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.ta
         postgresql.sysusers
         postgresql.tmpfiles)
 md5sums=('f2f861fb99d742cb9c2f8aa46a8a947d'
-         '14674b7e9a224975ea70e19359682142'
-         '297acc9145b94143e74c93f5ede34856'
+         'bf6c7d2f630f0d77e173629d85682164'
+         'f9689df1e64382278747d7b6eceebf88'
          '96f82c38f3f540b53f3e5144900acf17'
          'd28e443f9f65a5712c52018b84e27137'
          '0418d1b78f15b969c1575657d47ab130'
@@ -32,8 +32,8 @@ md5sums=('f2f861fb99d742cb9c2f8aa46a8a947d'
          '2050d34e4dfa05f3c6fe4cd7615eaa4b'
          '02d017978f0bba21f455feceb3f0a45a')
 sha256sums=('baec5a4bdc4437336653b6cb5d9ed89be5bd5c0c58b94e0becee0a999e63c8f9'
-            '1c3f7ba96400cf5064093f8a839df9076eaa064df020e6ec9c5e7ab8b6d527c6'
-            'aee0792a7e0490810aa1e15dbfd5b45842780d864de6971926b362242b8d7cf0'
+            '3dbe7c06a53d85f1bde3145a480e833be721ee40cf70ec09e3942b9b1cb65766'
+            '75826cb986b01466684262d32eb11523951dec60bee7a6cf9889a4831c31256c'
             '57dfd072fd7ef0018c6b0a798367aac1abb5979060ff3f9df22d1048bb71c0d5'
             '6abb842764bbed74ea4a269d24f1e73d1c0b1d8ecd6e2e6fb5fb10590298605e'
             '25fb140b90345828dc01a4f286345757e700a47178bab03d217a7a5a79105b57'
@@ -41,8 +41,8 @@ sha256sums=('baec5a4bdc4437336653b6cb5d9ed89be5bd5c0c58b94e0becee0a999e63c8f9'
             '7fa8f0ef3f9d40abd4749cc327c2f52478cb6dfb6e2405bd0279c95e9ff99f12'
             '4a4c0bb9ceb156cc47e9446d8393d1f72b4fe9ea1d39ba17213359df9211da57')
 b2sums=('e17c62c4e3f048f28073c1706bfa1d3eb065c1416117061fd07b325072c19348f8f2badea1364a054aebccf6d65c2ca21bb46d9cf621d78bd0a75f5dc4b21fe5'
-        'd7a9d4d8281c5cdf642b5d6f7ebb03bdde00afc520bee4cac9fd18a2c25e4bc0aa59f3c3c9f44c257860e2560d126646f2ba81693f966fe93eb4e041adbb0b88'
-        '5d94b9565506a0ee1029595ff36e0052727174a9bab2a878a33985031b855c6052f579abdab242dad3a265d07203d800305a795b0827f2b3a4171f2a49c80a17'
+        '2b34eda43f4efe29f2e9e84e7bf451434dfef2e3adfaea77446c64f237d85c9ab08373f7e6cd4408e08cbbed3e7429b13dbd6e6e29408025c620be513dbb3d82'
+        'd82988bd3efb0a83c539bc770815a23a1b4f1d7618e01f0ef8badcc3c11587b17a718d546dffee9c51125e5e011433271bb98da6a701949985d5f6b501818f25'
         '3eab84d332d96678fe6e435ee243c8f1a82b838f601d61d3604d11e918aed7a62202edca5e476c4b9031ed284570e6fcd6c659cfdbd9624aa0019d3233755f81'
         '2209b7550acad7955102ec6922754b4046b2a2ad2a7e1cfb2cc4053c0705abac7aa7d7968eab617f50894797d06345f51c9a669926bd2a77dcf688206a2027e0'
         'a4255df47b7ac1418d20aa73aa0f6e70c7952a10d706e5523043c48b2c3b6d8e39838049dfcc826913cd0f2c06502561d1abe8b19cce7071db66139ae93a37bf'
@@ -54,8 +54,8 @@ b2sums=('e17c62c4e3f048f28073c1706bfa1d3eb065c1416117061fd07b325072c19348f8f2bad
 
 prepare() {
   cd postgresql-${pkgver}
-  patch -p1 < ../postgresql-run-socket.patch
-  patch -p1 < ../postgresql-perl-rpath.patch
+  patch -p1 < ../0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
+  patch -p1 < ../0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
 }
 
 build() {
