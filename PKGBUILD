@@ -19,7 +19,7 @@ source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.ta
         postgresql.pam
         postgresql.logrotate
         postgresql.service
-        postgresql-check-db-dir
+        postgresql-check-db-dir.in
         postgresql.sysusers
         postgresql.tmpfiles)
 md5sums=('f5319191df114e2361d938687216cc9b'
@@ -28,7 +28,7 @@ md5sums=('f5319191df114e2361d938687216cc9b'
          '96f82c38f3f540b53f3e5144900acf17'
          'd28e443f9f65a5712c52018b84e27137'
          '0418d1b78f15b969c1575657d47ab130'
-         '05368ed81d61479421f179b21c8e1fea'
+         '16615763ceb5429446c60784cce5297f'
          '2050d34e4dfa05f3c6fe4cd7615eaa4b'
          '02d017978f0bba21f455feceb3f0a45a')
 sha256sums=('df9e823eb22330444e1d48e52cc65135a652a6fdb3ce325e3f08549339f51b99'
@@ -37,7 +37,7 @@ sha256sums=('df9e823eb22330444e1d48e52cc65135a652a6fdb3ce325e3f08549339f51b99'
             '57dfd072fd7ef0018c6b0a798367aac1abb5979060ff3f9df22d1048bb71c0d5'
             '6abb842764bbed74ea4a269d24f1e73d1c0b1d8ecd6e2e6fb5fb10590298605e'
             '25fb140b90345828dc01a4f286345757e700a47178bab03d217a7a5a79105b57'
-            'a768b6c8093fef56349fa61e56fae093cb962376fb0d8d0d4c98bf5fe53d29ed'
+            '13e37772498e815fb2611d392ad4faa309c67d7cc0b50052d16ecba9b642b4d9'
             '7fa8f0ef3f9d40abd4749cc327c2f52478cb6dfb6e2405bd0279c95e9ff99f12'
             '4a4c0bb9ceb156cc47e9446d8393d1f72b4fe9ea1d39ba17213359df9211da57')
 b2sums=('a38bbe973796b5270ef2121e0f88dcaa46bbb8ed9e2d9f60b1b5a958e50a655ec763a5aa1a25478b0a3762494171674747e8e4b8efcd46068a7a84ff17ad9966'
@@ -46,7 +46,7 @@ b2sums=('a38bbe973796b5270ef2121e0f88dcaa46bbb8ed9e2d9f60b1b5a958e50a655ec763a5a
         '3eab84d332d96678fe6e435ee243c8f1a82b838f601d61d3604d11e918aed7a62202edca5e476c4b9031ed284570e6fcd6c659cfdbd9624aa0019d3233755f81'
         '2209b7550acad7955102ec6922754b4046b2a2ad2a7e1cfb2cc4053c0705abac7aa7d7968eab617f50894797d06345f51c9a669926bd2a77dcf688206a2027e0'
         'a4255df47b7ac1418d20aa73aa0f6e70c7952a10d706e5523043c48b2c3b6d8e39838049dfcc826913cd0f2c06502561d1abe8b19cce7071db66139ae93a37bf'
-        '21e5e7cf6f2575e300ba4b44088d5e063d438a1069c2fe1cdfa7a7387dacd86024157dffb880ec5797bcd1dac33f69be32a71e9f653e18f9cb7d1e7af4004ccb'
+        '0e06dc2b914861b92cb020e8bec29f3202461f116ce1f5222e8cb35c91a30efb07957dbd51629ef025b59af58730905a272e422eccf9a67bf5138a14d0b285bc'
         '5e9cba2f45604db83eb77c7bbb54bc499a38274be6cd97abb056c9bdf18e637a8ac354e18f41f614f7e1a2d6f13c2a0b562ab0aaebf9447cf5eb2d60e6501e12'
         '8a8e5ec24ea338b2b51b8d2be5a336ac8d4cc6b25200ed0f0d564df9942997478df0c54da2fac7b27d677774a34398f69047eecd0f97bdc0df8fe50a1b5ed74d')
 
@@ -199,7 +199,10 @@ package_postgresql() {
   install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 
   cd "${srcdir}"
-  install -Dm 755 postgresql-check-db-dir -t "${pkgdir}/usr/bin"
+  sed -e "s/%PGMAJORVERSION%/$_majorver/g" \
+      -e "s/%PREVMAJORVERSION%/$((_majorver - 1))/g" \
+      postgresql-check-db-dir.in |
+    install -Dm 755 /dev/stdin "${pkgdir}/usr/bin/postgresql-check-db-dir"
 
   install -Dm 644 ${pkgname}.pam "${pkgdir}/etc/pam.d/${pkgname}"
   install -Dm 644 ${pkgname}.logrotate "${pkgdir}/etc/logrotate.d/${pkgname}"
