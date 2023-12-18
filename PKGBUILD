@@ -5,7 +5,7 @@ pkgbase=postgresql
 pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
 pkgver=16.1
 _majorver=${pkgver%.*}
-pkgrel=2
+pkgrel=3
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
@@ -21,7 +21,8 @@ source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.ta
         postgresql.service
         postgresql-check-db-dir.in
         postgresql.sysusers
-        postgresql.tmpfiles)
+        postgresql.tmpfiles
+        openssl3.2.patch)
 md5sums=('9cbfb9076ed06384471802b850698a6d'
          '6ce1dab3da98a10f9190e6b3037f93aa'
          '632e22e96d6ace85b76a380487cfbf8c'
@@ -30,7 +31,8 @@ md5sums=('9cbfb9076ed06384471802b850698a6d'
          '0418d1b78f15b969c1575657d47ab130'
          '16615763ceb5429446c60784cce5297f'
          '2050d34e4dfa05f3c6fe4cd7615eaa4b'
-         '02d017978f0bba21f455feceb3f0a45a')
+         '02d017978f0bba21f455feceb3f0a45a'
+         'e5b0bb9f9cda8781756873131597de75')
 sha256sums=('ce3c4d85d19b0121fe0d3f8ef1fa601f71989e86f8a66f7dc3ad546dd5564fec'
             '4d5a1020626d6cdd8eabbcb54e71d719a8d4cf0228f20173d16a86b374d32acd'
             'e37e54caead0568b3605b14314faa62732b6ef188ee18edf2e73459795125717'
@@ -39,7 +41,8 @@ sha256sums=('ce3c4d85d19b0121fe0d3f8ef1fa601f71989e86f8a66f7dc3ad546dd5564fec'
             '25fb140b90345828dc01a4f286345757e700a47178bab03d217a7a5a79105b57'
             '13e37772498e815fb2611d392ad4faa309c67d7cc0b50052d16ecba9b642b4d9'
             '7fa8f0ef3f9d40abd4749cc327c2f52478cb6dfb6e2405bd0279c95e9ff99f12'
-            '4a4c0bb9ceb156cc47e9446d8393d1f72b4fe9ea1d39ba17213359df9211da57')
+            '4a4c0bb9ceb156cc47e9446d8393d1f72b4fe9ea1d39ba17213359df9211da57'
+            'efb5473a368f3b228acbc8776282ecb00f7a0f00ca632aaec10848bcbb177628')
 b2sums=('f59859af644134cf0fc9289c0e0d93fe0f877794a1cc8881280d0439605a6e312866a0114d453af8e269e26173fa3742073fe5485901b7cb0af925a5c3506aad'
         '283b5a025a3a5ed500317b7a0b8fa9af66816bc7c6a59a90d826e4e8420f9631d41b7219617d63e2c20e58e553bfe715d3b6d31dd3ed3ec07233a7f178dba368'
         '920d9601b0573e086045ecf699122afa81f02f1e88490268ccf5ab880ba4e36990b9093628db8520cf23433ae813d2ad81e692b03600f58bbc0b73a3d3e1a70b'
@@ -48,7 +51,8 @@ b2sums=('f59859af644134cf0fc9289c0e0d93fe0f877794a1cc8881280d0439605a6e312866a01
         'a4255df47b7ac1418d20aa73aa0f6e70c7952a10d706e5523043c48b2c3b6d8e39838049dfcc826913cd0f2c06502561d1abe8b19cce7071db66139ae93a37bf'
         '0e06dc2b914861b92cb020e8bec29f3202461f116ce1f5222e8cb35c91a30efb07957dbd51629ef025b59af58730905a272e422eccf9a67bf5138a14d0b285bc'
         '5e9cba2f45604db83eb77c7bbb54bc499a38274be6cd97abb056c9bdf18e637a8ac354e18f41f614f7e1a2d6f13c2a0b562ab0aaebf9447cf5eb2d60e6501e12'
-        '8a8e5ec24ea338b2b51b8d2be5a336ac8d4cc6b25200ed0f0d564df9942997478df0c54da2fac7b27d677774a34398f69047eecd0f97bdc0df8fe50a1b5ed74d')
+        '8a8e5ec24ea338b2b51b8d2be5a336ac8d4cc6b25200ed0f0d564df9942997478df0c54da2fac7b27d677774a34398f69047eecd0f97bdc0df8fe50a1b5ed74d'
+        'b5c2c1f662ff5b531f24d15388195a95b25fd09e8c3467c5c9f2ed0858693c34332c9c87d69da0312348669c4b993353e2cdeefebc826dfd4d0a3ec83d11f940')
 
 # Upstream provides md5 and sha256
 
@@ -56,6 +60,7 @@ prepare() {
   cd postgresql-${pkgver}
   patch -p1 < ../0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
   patch -p1 < ../0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+  patch -p1 < ../openssl3.2.patch
 }
 
 build() {
