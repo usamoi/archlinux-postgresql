@@ -3,9 +3,9 @@
 
 pkgbase=postgresql
 pkgname=(
+  'postgresql'
   'postgresql-libs'
   'postgresql-docs'
-  'postgresql'
 )
 pkgver=16.2
 _majorver=${pkgver%.*}
@@ -14,9 +14,8 @@ pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
 license=('PostgreSQL')
-makedepends=(
+depends=(
   'bash'
-  'clang'
   'gcc-libs'
   'glibc'
   'icu'
@@ -24,21 +23,24 @@ makedepends=(
   'libldap'
   'libxml2'
   'libxslt'
-  'llvm'
   'llvm-libs'
   'lz4'
   'openssl'
   'pam'
-  'perl'
-  'python'
   'readline'
-  'systemd'
   'systemd-libs'
-  'tcl'
-  'util-linux'
   'util-linux-libs'
   'zlib'
   'zstd'
+)
+makedepends=(
+  'clang'
+  'llvm'
+  'perl'
+  'python'
+  'systemd'
+  'tcl'
+  'util-linux'
 )
 source=(
   https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
@@ -138,103 +140,13 @@ check() (
   _postgres_check check-world
 )
 
-package_postgresql-libs() {
-  pkgdesc="Libraries for use with PostgreSQL"
-  depends=(
-    'glibc'
-    'krb5'
-    'libldap'
-    'lz4'
-    'openssl'
-    'readline'
-    'zlib'
-    'zstd'
-  )
-  provides=(
-    'libecpg.so'
-    'libecpg_compat.so'
-    'libpgtypes.so'
-    'libpq.so'
-    'postgresql-client'
-  )
-  conflicts=('postgresql-client')
-
-  cd postgresql-${pkgver}
-
-  # install license
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
-
-  # install libs and non-server binaries
-  for dir in src/interfaces src/bin/pg_config src/bin/pg_dump src/bin/psql src/bin/scripts; do
-    make -C ${dir} DESTDIR="${pkgdir}" install
-  done
-
-  for util in pg_config pg_dump pg_dumpall pg_restore psql \
-      clusterdb createdb createuser dropdb dropuser pg_isready reindexdb vacuumdb; do
-    install -Dm 644 doc/src/sgml/man1/${util}.1 "${pkgdir}"/usr/share/man/man1/${util}.1
-  done
-
-  cd src/include
-
-  install -d "${pkgdir}"/usr/include/{libpq,postgresql/internal/libpq}
-
-  # these headers are needed by the public headers of the interfaces
-  install -m 644 pg_config.h "${pkgdir}/usr/include"
-  install -m 644 pg_config_os.h "${pkgdir}/usr/include"
-  install -m 644 pg_config_ext.h "${pkgdir}/usr/include"
-  install -m 644 postgres_ext.h "${pkgdir}/usr/include"
-  install -m 644 libpq/libpq-fs.h "${pkgdir}/usr/include/libpq"
-  install -m 644 pg_config_manual.h "${pkgdir}/usr/include"
-
-  # these he aders are needed by the not-so-public headers of the interfaces
-  install -m 644 c.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 port.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 postgres_fe.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 libpq/pqcomm.h "${pkgdir}/usr/include/postgresql/internal/libpq"
-}
-
-package_postgresql-docs() {
-  pkgdesc="HTML documentation for PostgreSQL"
-  options+=('docs')
-
-  cd postgresql-${pkgver}
-
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
-
-  make -C doc/src/sgml DESTDIR="${pkgdir}" install-html
-  chown -R root:root "${pkgdir}/usr/share/doc/postgresql/html"
-
-  # clean up
-  rmdir "${pkgdir}"/usr/share/man/man{1,3,7}
-  rmdir "${pkgdir}"/usr/share/man
-}
-
 package_postgresql() {
   pkgdesc='Sophisticated object-relational DBMS'
   backup=(
     'etc/logrotate.d/postgresql'
     'etc/pam.d/postgresql'
   )
-  depends=(
-    "postgresql-libs>=${pkgver}"
-    'bash'
-    'gcc-libs'
-    'glibc'
-    'icu'
-    'krb5'
-    'libldap'
-    'libxml2'
-    'libxslt'
-    'llvm-libs'
-    'lz4'
-    'openssl'
-    'pam'
-    'readline'
-    'systemd-libs'
-    'util-linux-libs'
-    'zlib'
-    'zstd'
-  )
+  depends+=("postgresql-libs>=${pkgver}")
   optdepends=(
     'logrotate: rotates system logs automatically'
     'perl: for PL/Perl support'
@@ -261,9 +173,14 @@ package_postgresql() {
     rm "${pkgdir}"/usr/share/man/man1/${util}.1
   done
 
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  # clean up unneeded installed items
+  rm -rf "${pkgdir}/usr/include/postgresql/internal"
+  rm -rf "${pkgdir}/usr/include/libpq"
+  find "${pkgdir}/usr/include" -maxdepth 1 -type f -execdir rm {} +
+  rmdir "${pkgdir}/usr/share/doc/postgresql/html"
 
-  cd "${srcdir}"
+  pushd "${srcdir}"
+
   sed -e "s/%PGMAJORVERSION%/${_majorver}/g" \
       -e "s/%PREVMAJORVERSION%/$((_majorver - 1))/g" \
       postgresql-check-db-dir.in |
@@ -276,11 +193,81 @@ package_postgresql() {
   install -Dm 644 ${pkgname}.sysusers "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
   install -Dm 644 ${pkgname}.tmpfiles "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
-  # clean up unneeded installed items
-  rm -rf "${pkgdir}/usr/include/postgresql/internal"
-  rm -rf "${pkgdir}/usr/include/libpq"
-  find "${pkgdir}/usr/include" -maxdepth 1 -type f -execdir rm {} +
-  rmdir "${pkgdir}/usr/share/doc/postgresql/html"
+  popd
+
+  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
+package_postgresql-libs() {
+  pkgdesc="Libraries for use with PostgreSQL"
+  depends=(
+    'glibc'
+    'krb5'
+    'libldap'
+    'lz4'
+    'openssl'
+    'readline'
+    'zlib'
+    'zstd'
+  )
+  provides=(
+    'libecpg.so'
+    'libecpg_compat.so'
+    'libpgtypes.so'
+    'libpq.so'
+    'postgresql-client'
+  )
+  conflicts=('postgresql-client')
+
+  cd postgresql-${pkgver}
+
+  # install libs and non-server binaries
+  for dir in src/interfaces src/bin/pg_config src/bin/pg_dump src/bin/psql src/bin/scripts; do
+    make -C ${dir} DESTDIR="${pkgdir}" install
+  done
+
+  for util in pg_config pg_dump pg_dumpall pg_restore psql \
+      clusterdb createdb createuser dropdb dropuser pg_isready reindexdb vacuumdb; do
+    install -Dm 644 doc/src/sgml/man1/${util}.1 "${pkgdir}"/usr/share/man/man1/${util}.1
+  done
+
+  pushd src/include
+
+  install -d "${pkgdir}"/usr/include/{libpq,postgresql/internal/libpq}
+
+  # these headers are needed by the public headers of the interfaces
+  install -m 644 pg_config.h "${pkgdir}/usr/include"
+  install -m 644 pg_config_os.h "${pkgdir}/usr/include"
+  install -m 644 pg_config_ext.h "${pkgdir}/usr/include"
+  install -m 644 postgres_ext.h "${pkgdir}/usr/include"
+  install -m 644 libpq/libpq-fs.h "${pkgdir}/usr/include/libpq"
+  install -m 644 pg_config_manual.h "${pkgdir}/usr/include"
+
+  # these he aders are needed by the not-so-public headers of the interfaces
+  install -m 644 c.h "${pkgdir}/usr/include/postgresql/internal"
+  install -m 644 port.h "${pkgdir}/usr/include/postgresql/internal"
+  install -m 644 postgres_fe.h "${pkgdir}/usr/include/postgresql/internal"
+  install -m 644 libpq/pqcomm.h "${pkgdir}/usr/include/postgresql/internal/libpq"
+
+  popd
+
+  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
+package_postgresql-docs() {
+  pkgdesc="HTML documentation for PostgreSQL"
+  options+=('docs')
+
+  cd postgresql-${pkgver}
+
+  make -C doc/src/sgml DESTDIR="${pkgdir}" install-html
+  chown -R root:root "${pkgdir}/usr/share/doc/postgresql/html"
+
+  # clean up
+  rmdir "${pkgdir}"/usr/share/man/man{1,3,7}
+  rmdir "${pkgdir}"/usr/share/man
+
+  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
 # vim:set sw=2 sts=-1 et:
