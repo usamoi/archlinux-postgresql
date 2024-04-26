@@ -35,7 +35,10 @@ depends=(
 )
 makedepends=(
   'clang'
+  'docbook-xsl'
+  'git'
   'llvm'
+  'meson'
   'perl'
   'perl-ipc-run'
   'python'
@@ -44,9 +47,8 @@ makedepends=(
   'util-linux'
 )
 source=(
-  https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
+  "git+https://git.postgresql.org/git/postgresql.git#tag=REL_${pkgver//./_}"
   0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
-  0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
   postgresql-check-db-dir.in
   postgresql.logrotate
   postgresql.pam
@@ -54,27 +56,24 @@ source=(
   postgresql.sysusers
   postgresql.tmpfiles
 )
-md5sums=('3d19d93434666db5d33e692472915ae5'
+md5sums=('6b2005d70080ab3abc2b4a7bd083f260'
          '6ce1dab3da98a10f9190e6b3037f93aa'
-         '632e22e96d6ace85b76a380487cfbf8c'
          '10123caec61006cbe316de8ab7a497bc'
          'd28e443f9f65a5712c52018b84e27137'
          '96f82c38f3f540b53f3e5144900acf17'
          '026a3dbde1a0b2909120f0012237a33d'
          'da6a0dda84638d0c3463abf4bc01e621'
          '9138244e0e6b98acc770931a4b150b86')
-sha256sums=('446e88294dbc2c9085ab4b7061a646fa604b4bec03521d5ea671c2e5ad9b2952'
+sha256sums=('484162ef6c0a6787660a7127ff1eec5efb3597272f8dd043050b6176d488f99e'
             '4d5a1020626d6cdd8eabbcb54e71d719a8d4cf0228f20173d16a86b374d32acd'
-            'e37e54caead0568b3605b14314faa62732b6ef188ee18edf2e73459795125717'
             '94af93b53bf7772e6664c239523ef952ffc905a0de3c2c4b2dfc2fe8f3a2efed'
             '6abb842764bbed74ea4a269d24f1e73d1c0b1d8ecd6e2e6fb5fb10590298605e'
             '57dfd072fd7ef0018c6b0a798367aac1abb5979060ff3f9df22d1048bb71c0d5'
             '5c23d7741bcd429d9552258decbcb1935febd671c237c1c99b9248dff4838eb8'
             '3cfe36dd202af56b3ef8e6d6a746b24e6f46f0d9e0d3fa125dbfb5e598170afb'
             'ea771830c15b24c8725ded92e6a9ba9848b13f722357c5f5857dfeb21985d54c')
-b2sums=('b863d7b7a1721df237c33a45aed788be9397a432a445f2267619496f1c0210196ff0904c44dbf07ea11f814921c643a6b9182b8a4c992f13578c4fe00868d491'
+b2sums=('4c9e850b345bc8eabf7ddc6bd7f5563cfbba438dd5e8c4e50693e0ea15b034170638df54f5bb5b184e8ca94484baf2ae16ce1b49cc866c619d5c15626032e77f'
         '283b5a025a3a5ed500317b7a0b8fa9af66816bc7c6a59a90d826e4e8420f9631d41b7219617d63e2c20e58e553bfe715d3b6d31dd3ed3ec07233a7f178dba368'
-        '920d9601b0573e086045ecf699122afa81f02f1e88490268ccf5ab880ba4e36990b9093628db8520cf23433ae813d2ad81e692b03600f58bbc0b73a3d3e1a70b'
         '682bfab1189221d82f6cce9bcb8c40c6d37ecacbcaf0568bbaa2706503b1f102e5476d0d110dcc6240ab62c5e7c2c20a5d9af8edd4038d212327f8866b1cf15a'
         '2209b7550acad7955102ec6922754b4046b2a2ad2a7e1cfb2cc4053c0705abac7aa7d7968eab617f50894797d06345f51c9a669926bd2a77dcf688206a2027e0'
         '3eab84d332d96678fe6e435ee243c8f1a82b838f601d61d3604d11e918aed7a62202edca5e476c4b9031ed284570e6fcd6c659cfdbd9624aa0019d3233755f81'
@@ -85,62 +84,50 @@ b2sums=('b863d7b7a1721df237c33a45aed788be9397a432a445f2267619496f1c0210196ff0904
 # Upstream provides md5 and sha256
 
 prepare() {
-  cd postgresql-${pkgver}
+  cd postgresql
   patch -p1 < ../0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
-  patch -p1 < ../0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
 }
 
 build() {
-  cd postgresql-${pkgver}
-  local configure_options=(
-    --prefix=/usr
-    --sysconfdir=/etc
-    --mandir=/usr/share/man
-    --datadir=/usr/share/postgresql
-    --disable-rpath
-    --enable-nls
-    --enable-tap-tests
-    --enable-thread-safety
-    --with-gssapi
-    --with-icu
-    --with-ldap
-    --with-libxml
-    --with-libxslt
-    --with-llvm
-    --with-lz4
-    --with-openssl
-    --with-pam
-    --with-perl
-    --with-python
-    --with-readline
-    --with-system-tzdata=/usr/share/zoneinfo
-    --with-systemd
-    --with-tcl
-    --with-uuid=e2fs
-    --with-zstd
+  local meson_options=(
+    -D bonjour=disabled
+    -D bsd_auth=disabled
+    -D docs_pdf=disabled
+    -D llvm=enabled
+    -D rpath=false
+    -D selinux=disabled
+    -D system_tzdata=/usr/share/zoneinfo
+    -D uuid=e2fs
   )
 
   # Fix static libs
   CFLAGS+=" -ffat-lto-objects"
 
-  ./configure "${configure_options[@]}"
-  make world
-}
-
-_postgres_check() {
-  make "${1}" || (find . -name regression.diffs | \
-    while read -r line; do
-      echo "make ${1} failure: ${line}"
-      cat "${line}"
-    done; exit 1)
+  arch-meson postgresql build "${meson_options[@]}"
+  meson compile -C build
+  ninja -C build alldocs
 }
 
 check() (
   export LANG=C LC_ALL=C
-  cd postgresql-${pkgver}
-  _postgres_check check
-  _postgres_check check-world
+  meson test -C build --print-errorlogs || (
+    find . -name regression.diffs | while read -r line; do
+      echo "test failure diff: ${line}"
+      cat "${line}"
+    done
+    exit 1
+  )
 )
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
 
 package_postgresql() {
   pkgdesc='Sophisticated object-relational DBMS'
@@ -159,29 +146,28 @@ package_postgresql() {
   options+=('staticlibs')
   install=postgresql.install
 
-  cd postgresql-${pkgver}
+  meson install -C build --destdir "${pkgdir}"
+  DESTDIR="$pkgdir" ninja -C build install-docs
 
-  # install
-  make DESTDIR="${pkgdir}" install
-  make -C contrib DESTDIR="${pkgdir}" install
-  make -C doc/src/sgml DESTDIR="${pkgdir}" install-man
+  # Shared libraries
+  _pick libs "${pkgdir}"/usr/include/{ecpg,libpq,pg_config,pgtypes,postgres_ext,sql}*
+  _pick libs "${pkgdir}"/usr/include/postgresql/{informix,internal}
+  _pick libs "${pkgdir}"/usr/lib/lib{ecpg,ecpg_compat,pgtypes,pq}.{a,so*}
+  _pick libs "${pkgdir}"/usr/lib/pkgconfig/lib{ecpg,ecpg_compat,pgtypes,pq}.pc
+  _pick libs "${pkgdir}"/usr/share/locale/*/LC_MESSAGES/{ecpglib6,libpq5}-*
 
-  # we don't want these, they are in the -libs package
-  for dir in src/interfaces src/bin/pg_config src/bin/pg_dump src/bin/psql src/bin/scripts; do
-    make -C ${dir} DESTDIR="${pkgdir}" uninstall
-  done
-  for util in pg_config pg_dump pg_dumpall pg_restore psql \
-      clusterdb createdb createuser dropdb dropuser pg_isready reindexdb vacuumdb; do
-    rm "${pkgdir}"/usr/share/man/man1/${util}.1
-  done
+  # Non-server binaries
+  _pick libs "${pkgdir}"/usr/bin/{clusterdb,ecpg,psql,reindexdb,vacuumdb}
+  _pick libs "${pkgdir}"/usr/bin/{create,drop}{db,user}
+  _pick libs "${pkgdir}"/usr/bin/pg_{config,dump,dumpall,isready,restore}
+  _pick libs "${pkgdir}"/usr/share/locale/*/LC_MESSAGES/{ecpg,pg_config,pg_dump,pgscripts,psql}-*
+  _pick libs "${pkgdir}"/usr/share/man/man1/{clusterdb,psql,reindexdb,vacuumdb}.1
+  _pick libs "${pkgdir}"/usr/share/man/man1/{create,drop}{db,user}.1
+  _pick libs "${pkgdir}"/usr/share/man/man1/pg_{config,dump,dumpall,isready,restore}.1
+  _pick libs "${pkgdir}"/usr/share/postgresql/{pg_service.conf,psqlrc}.sample
 
-  # clean up unneeded installed items
-  rm -rf "${pkgdir}/usr/include/postgresql/internal"
-  rm -rf "${pkgdir}/usr/include/libpq"
-  find "${pkgdir}/usr/include" -maxdepth 1 -type f -execdir rm {} +
-  rmdir "${pkgdir}/usr/share/doc/postgresql/html"
-
-  pushd "${srcdir}"
+  # Documentation
+  _pick docs "${pkgdir}"/usr/share/doc
 
   sed -e "s/%PGMAJORVERSION%/${_majorver}/g" \
       -e "s/%PREVMAJORVERSION%/$((_majorver - 1))/g" \
@@ -195,9 +181,7 @@ package_postgresql() {
   install -Dm 644 ${pkgname}.sysusers "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
   install -Dm 644 ${pkgname}.tmpfiles "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
-  popd
-
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 postgresql/COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
 package_postgresql-libs() {
@@ -221,55 +205,18 @@ package_postgresql-libs() {
   )
   conflicts=('postgresql-client')
 
-  cd postgresql-${pkgver}
+  mv libs/* "${pkgdir}"
 
-  # install libs and non-server binaries
-  for dir in src/interfaces src/bin/pg_config src/bin/pg_dump src/bin/psql src/bin/scripts; do
-    make -C ${dir} DESTDIR="${pkgdir}" install
-  done
-
-  for util in pg_config pg_dump pg_dumpall pg_restore psql \
-      clusterdb createdb createuser dropdb dropuser pg_isready reindexdb vacuumdb; do
-    install -Dm 644 doc/src/sgml/man1/${util}.1 "${pkgdir}"/usr/share/man/man1/${util}.1
-  done
-
-  pushd src/include
-
-  install -d "${pkgdir}"/usr/include/{libpq,postgresql/internal/libpq}
-
-  # these headers are needed by the public headers of the interfaces
-  install -m 644 pg_config.h "${pkgdir}/usr/include"
-  install -m 644 pg_config_os.h "${pkgdir}/usr/include"
-  install -m 644 pg_config_ext.h "${pkgdir}/usr/include"
-  install -m 644 postgres_ext.h "${pkgdir}/usr/include"
-  install -m 644 libpq/libpq-fs.h "${pkgdir}/usr/include/libpq"
-  install -m 644 pg_config_manual.h "${pkgdir}/usr/include"
-
-  # these he aders are needed by the not-so-public headers of the interfaces
-  install -m 644 c.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 port.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 postgres_fe.h "${pkgdir}/usr/include/postgresql/internal"
-  install -m 644 libpq/pqcomm.h "${pkgdir}/usr/include/postgresql/internal/libpq"
-
-  popd
-
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 postgresql/COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
 package_postgresql-docs() {
   pkgdesc="HTML documentation for PostgreSQL"
   options+=('docs')
 
-  cd postgresql-${pkgver}
+  mv docs/* "${pkgdir}"
 
-  make -C doc/src/sgml DESTDIR="${pkgdir}" install-html
-  chown -R root:root "${pkgdir}/usr/share/doc/postgresql/html"
-
-  # clean up
-  rmdir "${pkgdir}"/usr/share/man/man{1,3,7}
-  rmdir "${pkgdir}"/usr/share/man
-
-  install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 postgresql/COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
 # vim:set sw=2 sts=-1 et:
