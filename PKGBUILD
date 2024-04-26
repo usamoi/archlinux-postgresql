@@ -37,6 +37,7 @@ makedepends=(
   'clang'
   'llvm'
   'perl'
+  'perl-ipc-run'
   'python'
   'systemd'
   'tcl'
@@ -98,6 +99,7 @@ build() {
     --datadir=/usr/share/postgresql
     --disable-rpath
     --enable-nls
+    --enable-tap-tests
     --enable-thread-safety
     --with-gssapi
     --with-icu
@@ -134,7 +136,7 @@ _postgres_check() {
 }
 
 check() (
-  export LANG=C
+  export LANG=C LC_ALL=C
   cd postgresql-${pkgver}
   _postgres_check check
   _postgres_check check-world

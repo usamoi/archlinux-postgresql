@@ -8,6 +8,7 @@ pkgbase = postgresql
 	makedepends = clang
 	makedepends = llvm
 	makedepends = perl
+	makedepends = perl-ipc-run
 	makedepends = python
 	makedepends = systemd
 	makedepends = tcl
