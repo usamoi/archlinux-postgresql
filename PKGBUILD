@@ -2,25 +2,55 @@
 # Maintainer: Dan McGee <dan@archlinux.org>
 
 pkgbase=postgresql
-pkgname=('postgresql-libs' 'postgresql-docs' 'postgresql')
+pkgname=(
+  'postgresql-libs'
+  'postgresql-docs'
+  'postgresql'
+)
 pkgver=16.2
 _majorver=${pkgver%.*}
 pkgrel=2
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
-license=('custom:PostgreSQL')
-makedepends=('krb5' 'libxml2' 'python' 'perl' 'tcl' 'openssl' 'pam' 'zlib'
-             'icu' 'systemd' 'libldap' 'llvm' 'clang' 'libxslt' 'util-linux')
-source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
-        0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
-        0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
-        postgresql.pam
-        postgresql.logrotate
-        postgresql.service
-        postgresql-check-db-dir.in
-        postgresql.sysusers
-        postgresql.tmpfiles)
+license=('PostgreSQL')
+makedepends=(
+  'bash'
+  'clang'
+  'gcc-libs'
+  'glibc'
+  'icu'
+  'krb5'
+  'libldap'
+  'libxml2'
+  'libxslt'
+  'llvm'
+  'llvm-libs'
+  'lz4'
+  'openssl'
+  'pam'
+  'perl'
+  'python'
+  'readline'
+  'systemd'
+  'systemd-libs'
+  'tcl'
+  'util-linux'
+  'util-linux-libs'
+  'zlib'
+  'zstd'
+)
+source=(
+  https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
+  0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
+  0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+  postgresql.pam
+  postgresql.logrotate
+  postgresql.service
+  postgresql-check-db-dir.in
+  postgresql.sysusers
+  postgresql.tmpfiles
+)
 md5sums=('3d19d93434666db5d33e692472915ae5'
          '6ce1dab3da98a10f9190e6b3037f93aa'
          '632e22e96d6ace85b76a380487cfbf8c'
@@ -61,29 +91,29 @@ build() {
   cd postgresql-${pkgver}
   local configure_options=(
     --prefix=/usr
+    --sysconfdir=/etc
     --mandir=/usr/share/man
     --datadir=/usr/share/postgresql
-    --sysconfdir=/etc
-    --with-gssapi
-    --with-libxml
-    --with-openssl
-    --with-perl
-    --with-python
-    --with-tcl
-    --with-pam
-    --with-readline
-    --with-system-tzdata=/usr/share/zoneinfo
-    --with-uuid=e2fs
-    --with-icu
-    --with-systemd
-    --with-ldap
-    --with-llvm
-    --with-libxslt
-    --with-lz4
-    --with-zstd
+    --disable-rpath
     --enable-nls
     --enable-thread-safety
-    --disable-rpath
+    --with-gssapi
+    --with-icu
+    --with-ldap
+    --with-libxml
+    --with-libxslt
+    --with-llvm
+    --with-lz4
+    --with-openssl
+    --with-pam
+    --with-perl
+    --with-python
+    --with-readline
+    --with-system-tzdata=/usr/share/zoneinfo
+    --with-systemd
+    --with-tcl
+    --with-uuid=e2fs
+    --with-zstd
   )
 
   # Fix static libs
@@ -101,17 +131,32 @@ _postgres_check() {
     done; exit 1)
 }
 
-check() {
+check() (
   export LANG=C
   cd postgresql-${pkgver}
   _postgres_check check
   _postgres_check check-world
-}
+)
 
 package_postgresql-libs() {
   pkgdesc="Libraries for use with PostgreSQL"
-  depends=('krb5' 'openssl' 'readline' 'zlib' 'libldap')
-  provides=('postgresql-client' 'libpq.so' 'libecpg.so' 'libecpg_compat.so' 'libpgtypes.so')
+  depends=(
+    'glibc'
+    'krb5'
+    'libldap'
+    'lz4'
+    'openssl'
+    'readline'
+    'zlib'
+    'zstd'
+  )
+  provides=(
+    'libecpg.so'
+    'libecpg_compat.so'
+    'libpgtypes.so'
+    'libpq.so'
+    'postgresql-client'
+  )
   conflicts=('postgresql-client')
 
   cd postgresql-${pkgver}
@@ -166,15 +211,37 @@ package_postgresql-docs() {
 
 package_postgresql() {
   pkgdesc='Sophisticated object-relational DBMS'
-  backup=('etc/pam.d/postgresql' 'etc/logrotate.d/postgresql')
-  depends=("postgresql-libs>=${pkgver}" 'krb5' 'libxml2' 'readline' 'openssl'
-           'pam' 'icu' 'systemd-libs' 'libldap' 'llvm-libs' 'libxslt' 'lz4'
-           'zstd')
-  optdepends=('python: for PL/Python 3 support'
-              'perl: for PL/Perl support'
-              'tcl: for PL/Tcl support'
-              'postgresql-old-upgrade: upgrade from previous major version using pg_upgrade'
-              'logrotate: rotates system logs automatically')
+  backup=(
+    'etc/logrotate.d/postgresql'
+    'etc/pam.d/postgresql'
+  )
+  depends=(
+    "postgresql-libs>=${pkgver}"
+    'bash'
+    'gcc-libs'
+    'glibc'
+    'icu'
+    'krb5'
+    'libldap'
+    'libxml2'
+    'libxslt'
+    'llvm-libs'
+    'lz4'
+    'openssl'
+    'pam'
+    'readline'
+    'systemd-libs'
+    'util-linux-libs'
+    'zlib'
+    'zstd'
+  )
+  optdepends=(
+    'logrotate: rotates system logs automatically'
+    'perl: for PL/Perl support'
+    'postgresql-old-upgrade: upgrade from previous major version using pg_upgrade'
+    'python: for PL/Python 3 support'
+    'tcl: for PL/Tcl support'
+  )
   options+=('staticlibs')
   install=postgresql.install
 
@@ -197,7 +264,7 @@ package_postgresql() {
   install -Dm 644 COPYRIGHT -t "${pkgdir}/usr/share/licenses/${pkgname}"
 
   cd "${srcdir}"
-  sed -e "s/%PGMAJORVERSION%/$_majorver/g" \
+  sed -e "s/%PGMAJORVERSION%/${_majorver}/g" \
       -e "s/%PREVMAJORVERSION%/$((_majorver - 1))/g" \
       postgresql-check-db-dir.in |
     install -Dm 755 /dev/stdin "${pkgdir}/usr/bin/postgresql-check-db-dir"
