@@ -258,6 +258,7 @@ package_postgresql-libs() {
 
 package_postgresql-docs() {
   pkgdesc="HTML documentation for PostgreSQL"
+  depends=()
   options+=('docs')
 
   cd postgresql-${pkgver}

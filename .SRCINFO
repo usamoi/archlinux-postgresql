@@ -116,4 +116,5 @@ pkgname = postgresql-libs
 
 pkgname = postgresql-docs
 	pkgdesc = HTML documentation for PostgreSQL
+	depends = 
 	options = docs
