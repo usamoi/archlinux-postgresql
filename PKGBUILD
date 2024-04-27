@@ -135,12 +135,12 @@ _postgres_check() {
     done; exit 1)
 }
 
-check() (
+check() {
   export LANG=C LC_ALL=C
   cd postgresql-${pkgver}
   _postgres_check check
   _postgres_check check-world
-)
+}
 
 package_postgresql() {
   pkgdesc='Sophisticated object-relational DBMS'
