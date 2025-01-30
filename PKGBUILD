@@ -9,7 +9,7 @@ pkgname=(
 )
 pkgver=17.2
 _majorver=${pkgver%.*}
-pkgrel=1
+pkgrel=2
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
@@ -49,6 +49,7 @@ source=(
   https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
   0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
   0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+  0003-fix-regression-tests-tz.patch::https://github.com/postgres/postgres/commit/8108674f0e5639baebcf03b54b7ccf9e9a8662a2.patch
   postgresql-check-db-dir.in
   postgresql.logrotate
   postgresql.pam
@@ -59,6 +60,7 @@ source=(
 md5sums=('09113b33865a873443aca6feda634b0f'
          'a5b05db6d869c74a2fc0d8f752618b1d'
          'b74d848f5527740dce663ae72f39c5ae'
+         '86f1ac3c8aab15dbcbfc2d677a25185a'
          '10123caec61006cbe316de8ab7a497bc'
          'd28e443f9f65a5712c52018b84e27137'
          '96f82c38f3f540b53f3e5144900acf17'
@@ -68,6 +70,7 @@ md5sums=('09113b33865a873443aca6feda634b0f'
 sha256sums=('82ef27c0af3751695d7f64e2d963583005fbb6a0c3df63d0e4b42211d7021164'
             '2c09429dca9caf540be647fdac9540eeccb68935994bb54cfd3f2108464916c7'
             '0fb4915c06b9767933b27adc329e7319485e043fb9f17b1697b969779a00cf14'
+            '60557e29e9001fe1e82aa9c93301bdd6a93075b833518347f2b1cc16e021417c'
             '94af93b53bf7772e6664c239523ef952ffc905a0de3c2c4b2dfc2fe8f3a2efed'
             '6abb842764bbed74ea4a269d24f1e73d1c0b1d8ecd6e2e6fb5fb10590298605e'
             '57dfd072fd7ef0018c6b0a798367aac1abb5979060ff3f9df22d1048bb71c0d5'
@@ -77,6 +80,7 @@ sha256sums=('82ef27c0af3751695d7f64e2d963583005fbb6a0c3df63d0e4b42211d7021164'
 b2sums=('1afafbec5db26ab17f2410c40db38e30fc1413cd518d387bc01640232698407de97123d0c61e1ec4d32d1041055db874f04dd52ad3697f1b9993b1aff3c5156a'
         'c924fd8f58a85d0ed073af7f9778467db6d106b8b66e011048c5148a6b7d02afe4d02451970bd08d351a7356abe7b9a8ea17e3bf1cce32f17977196215d49b5b'
         'd98280e004adcb1ad85053d9bd202a2b4798df6e7a72b21cb263da6b282f42b5463ce77dcc4f0b1b39d3f55303d0f6869b23f2338ffcd98720b0550204adf85a'
+        '41d7b41bd10fb17627e164a607a51240fa0a480a647917e110d85742cdd8f8dd4616a0cdd8f0898a3288fd9906a0ace6dcd60e3b6dcee75b5a9613103ab9d648'
         '682bfab1189221d82f6cce9bcb8c40c6d37ecacbcaf0568bbaa2706503b1f102e5476d0d110dcc6240ab62c5e7c2c20a5d9af8edd4038d212327f8866b1cf15a'
         '2209b7550acad7955102ec6922754b4046b2a2ad2a7e1cfb2cc4053c0705abac7aa7d7968eab617f50894797d06345f51c9a669926bd2a77dcf688206a2027e0'
         '3eab84d332d96678fe6e435ee243c8f1a82b838f601d61d3604d11e918aed7a62202edca5e476c4b9031ed284570e6fcd6c659cfdbd9624aa0019d3233755f81'
@@ -90,6 +94,7 @@ prepare() {
   cd postgresql-${pkgver}
   patch -p1 < ../0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
   patch -p1 < ../0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+  patch -p1 < ../0003-fix-regression-tests-tz.patch
 }
 
 build() {
