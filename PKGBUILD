@@ -9,7 +9,7 @@ pkgname=(
 )
 pkgver=17.4
 _majorver=${pkgver%.*}
-pkgrel=1
+pkgrel=2
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
@@ -49,6 +49,7 @@ source=(
   https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
   0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
   0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+  0003-Adjust-tests-for-libxml-2.14.patch
   postgresql-check-db-dir.in
   postgresql.logrotate
   postgresql.pam
@@ -59,6 +60,7 @@ source=(
 md5sums=('4d5f4119cabe4adeb5ce8b5377928578'
          'a5b05db6d869c74a2fc0d8f752618b1d'
          'b74d848f5527740dce663ae72f39c5ae'
+         'f3fb3d9a8b195fafcf71443bdccd5641'
          '10123caec61006cbe316de8ab7a497bc'
          'd28e443f9f65a5712c52018b84e27137'
          '96f82c38f3f540b53f3e5144900acf17'
@@ -68,6 +70,7 @@ md5sums=('4d5f4119cabe4adeb5ce8b5377928578'
 sha256sums=('c4605b73fea11963406699f949b966e5d173a7ee0ccaef8938dec0ca8a995fe7'
             '2c09429dca9caf540be647fdac9540eeccb68935994bb54cfd3f2108464916c7'
             '0fb4915c06b9767933b27adc329e7319485e043fb9f17b1697b969779a00cf14'
+            '2e96d7a7c6194aa039ed6ba5249d9b2fe5dbcd8c1450995546ded4c990379b2b'
             '94af93b53bf7772e6664c239523ef952ffc905a0de3c2c4b2dfc2fe8f3a2efed'
             '6abb842764bbed74ea4a269d24f1e73d1c0b1d8ecd6e2e6fb5fb10590298605e'
             '57dfd072fd7ef0018c6b0a798367aac1abb5979060ff3f9df22d1048bb71c0d5'
@@ -77,6 +80,7 @@ sha256sums=('c4605b73fea11963406699f949b966e5d173a7ee0ccaef8938dec0ca8a995fe7'
 b2sums=('d8095023ae85ba2a28479e4c1d6dac57ccb71471e6e3a74730052c368a71e66e3e84df36a1e1b85f3bd070141b9464aa9c4aad179f421ea8fea274a7975398af'
         'c924fd8f58a85d0ed073af7f9778467db6d106b8b66e011048c5148a6b7d02afe4d02451970bd08d351a7356abe7b9a8ea17e3bf1cce32f17977196215d49b5b'
         'd98280e004adcb1ad85053d9bd202a2b4798df6e7a72b21cb263da6b282f42b5463ce77dcc4f0b1b39d3f55303d0f6869b23f2338ffcd98720b0550204adf85a'
+        '43f400f3a104ffc81256ec953ffb9898a7f3615350771230abc37f60669922853ccce883b1bb7f37d14ce6947ae0de9a4cdf6d0aca968689de3addc5ed8eac39'
         '682bfab1189221d82f6cce9bcb8c40c6d37ecacbcaf0568bbaa2706503b1f102e5476d0d110dcc6240ab62c5e7c2c20a5d9af8edd4038d212327f8866b1cf15a'
         '2209b7550acad7955102ec6922754b4046b2a2ad2a7e1cfb2cc4053c0705abac7aa7d7968eab617f50894797d06345f51c9a669926bd2a77dcf688206a2027e0'
         '3eab84d332d96678fe6e435ee243c8f1a82b838f601d61d3604d11e918aed7a62202edca5e476c4b9031ed284570e6fcd6c659cfdbd9624aa0019d3233755f81'
@@ -90,6 +94,9 @@ prepare() {
   cd postgresql-${pkgver}
   patch -p1 < ../0001-Set-DEFAULT_PGSOCKET_DIR-to-run-postgresql.patch
   patch -p1 < ../0002-Force-RPATH-to-be-used-for-the-PL-Perl-plugin.patch
+
+  # https://gitlab.gnome.org/GNOME/libxml2/-/issues/895
+  patch -p1 < ../0003-Adjust-tests-for-libxml-2.14.patch
 }
 
 build() {
