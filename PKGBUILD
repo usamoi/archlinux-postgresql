@@ -9,7 +9,7 @@ pkgname=(
 )
 pkgver=17.5
 _majorver=${pkgver%.*}
-pkgrel=2
+pkgrel=3
 pkgdesc='Sophisticated object-relational DBMS'
 url='https://www.postgresql.org/'
 arch=('x86_64')
